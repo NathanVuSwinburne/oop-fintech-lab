@@ -68,8 +68,8 @@ below under "Roadmap" so it survives even if history is lost.
 5. ✅ Concrete products (`Stock`, `Bond`, `Fund`) — inheritance, polymorphism, overriding
 6. ✅ `Holding`, `Portfolio` — composition, aggregate calculations
 7. ✅ `Order` + `OrderExecutionStrategy` — Strategy pattern, DI preview
-8. ⬜ `Transaction` + ledger — immutability, value objects **(NEXT)**
-9. ⬜ Custom exceptions — exception hierarchy
+8. ✅ `Transaction` — immutability, value objects (frozen dataclass)
+9. ⬜ Custom exceptions — exception hierarchy **(NEXT)**
 10. ⬜ Repository pattern (in-memory first)
 11. ⬜ Service layer
 12. ⬜ Factory pattern
@@ -96,8 +96,9 @@ src/fintech_lab/domain/
   portfolio.py            Portfolio
   order.py                Order
   order_execution.py      OrderExecutionStrategy, MarketOrderExecution, LimitOrderExecution
+  transaction.py           Transaction (frozen dataclass, built via Transaction.from_order)
 
-tests/                   mirrors src/, one test file per module, 28 tests passing
+tests/                   mirrors src/, one test file per module, 31 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -105,8 +106,7 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 8: `Transaction`.** Should be an immutable record of a completed trade
-(e.g. built from a filled `Order`) — a value object, not a mutable entity like
-`Investor`/`InvestmentAccount`. Use it to teach immutability (`frozen`
-dataclass or read-only properties with no setters) as a contrast to the
-mutable domain objects built so far.
+**Step 9: Custom exceptions.** Introduce a project exception hierarchy (e.g.
+a base `FintechLabError` with specific subclasses) and replace the bare
+`ValueError`s currently raised in `InvestmentAccount`, `Investor`, and
+`Transaction.from_order` where a more specific domain exception is warranted.
