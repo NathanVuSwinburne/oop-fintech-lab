@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import pytest
 
+from fintech_lab.domain.exceptions import InsufficientFundsError, ValidationError
 from fintech_lab.domain.investment_account import InvestmentAccount
 from fintech_lab.domain.investor import Investor
 
@@ -38,14 +39,14 @@ def test_withdraw_more_than_balance_is_rejected():
     account = make_account()
     account.deposit(Decimal("10"))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(InsufficientFundsError):
         account.withdraw(Decimal("20"))
 
 
 def test_negative_deposit_is_rejected():
     account = make_account()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         account.deposit(Decimal("-5"))
 
 

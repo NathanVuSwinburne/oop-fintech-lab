@@ -1,5 +1,6 @@
 import pytest
 
+from fintech_lab.domain.exceptions import ValidationError
 from fintech_lab.domain.investor import Investor
 
 
@@ -17,7 +18,7 @@ def test_name_is_stripped():
 
 
 def test_empty_name_is_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Investor(investor_id=1, name="   ")
 
 

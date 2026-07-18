@@ -69,8 +69,8 @@ below under "Roadmap" so it survives even if history is lost.
 6. ✅ `Holding`, `Portfolio` — composition, aggregate calculations
 7. ✅ `Order` + `OrderExecutionStrategy` — Strategy pattern, DI preview
 8. ✅ `Transaction` — immutability, value objects (frozen dataclass)
-9. ⬜ Custom exceptions — exception hierarchy **(NEXT)**
-10. ⬜ Repository pattern (in-memory first)
+9. ✅ Custom exceptions — exception hierarchy
+10. ⬜ Repository pattern (in-memory first) **(NEXT)**
 11. ⬜ Service layer
 12. ⬜ Factory pattern
 13. ⬜ Observer pattern
@@ -97,8 +97,10 @@ src/fintech_lab/domain/
   order.py                Order
   order_execution.py      OrderExecutionStrategy, MarketOrderExecution, LimitOrderExecution
   transaction.py           Transaction (frozen dataclass, built via Transaction.from_order)
+  exceptions.py            FintechLabError base + ValidationError, InsufficientFundsError,
+                            OrderNotFilledError
 
-tests/                   mirrors src/, one test file per module, 31 tests passing
+tests/                   mirrors src/, one test file per module, 32 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -106,7 +108,9 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 9: Custom exceptions.** Introduce a project exception hierarchy (e.g.
-a base `FintechLabError` with specific subclasses) and replace the bare
-`ValueError`s currently raised in `InvestmentAccount`, `Investor`, and
-`Transaction.from_order` where a more specific domain exception is warranted.
+**Step 10: Repository pattern (in-memory first).** Introduce a repository
+abstraction for persisting/retrieving domain objects (start with
+`InvestorRepository` or similar), backed by an in-memory dict implementation.
+This is the first step that will justify creating new folders beyond
+`domain/` — likely `application/` or a `repositories/` module — since
+`domain/` must stay framework-free per the working agreement.

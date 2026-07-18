@@ -1,3 +1,6 @@
+from fintech_lab.domain.exceptions import ValidationError
+
+
 class Investor:
     """A person who holds one or more investment accounts."""
 
@@ -13,7 +16,7 @@ class Investor:
     def name(self, value: str) -> None:
         value = value.strip()
         if not value:
-            raise ValueError("Investor name cannot be empty")
+            raise ValidationError("Investor name cannot be empty")
         self._name = value
 
     def __repr__(self) -> str:

@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import pytest
 
+from fintech_lab.domain.exceptions import OrderNotFilledError
 from fintech_lab.domain.investment_account import InvestmentAccount
 from fintech_lab.domain.investor import Investor
 from fintech_lab.domain.order import Order
@@ -40,7 +41,7 @@ def test_transaction_cannot_be_built_from_an_unfilled_order():
     stock = Stock(product_id=1, name="Acme Corp", market_price=Decimal("100"))
     unfilled_order = Order(product=stock, quantity=Decimal("10"), strategy=MarketOrderExecution())
 
-    with pytest.raises(ValueError):
+    with pytest.raises(OrderNotFilledError):
         Transaction.from_order(transaction_id=1, account=make_account(), order=unfilled_order)
 
 
