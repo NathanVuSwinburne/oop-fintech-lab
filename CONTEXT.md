@@ -72,8 +72,8 @@ below under "Roadmap" so it survives even if history is lost.
 10. ✅ Repository pattern (in-memory first)
 11. ✅ Service layer
 12. ✅ Factory pattern
-13. ⬜ Observer pattern **(NEXT)**
-14. ⬜ Dependency injection (formalized, beyond the Order preview)
+13. ✅ Observer pattern
+14. ⬜ Dependency injection (formalized, beyond the Order preview) **(NEXT)**
 15. ⬜ Unit of Work
 16. ⬜ `User`, `Role`, `Adviser`, permissions
 17. ⬜ Refactor pass — SOLID review, coupling/cohesion
@@ -110,7 +110,12 @@ src/fintech_lab/application/
 domain/product_factory.py  FinancialProductFactory — static create(type, id, name, price),
                             dispatches to Stock/Bond/Fund, ValidationError on unknown type
 
-tests/                   mirrors src/, one test file per module, 44 tests passing
+domain/order_observer.py   OrderObserver (ABC) + TransactionRecorder (concrete: builds a
+                            Transaction per fill). Order holds observers, notifies on fill.
+                            transaction.py's Order import moved to TYPE_CHECKING to break
+                            the order.py <-> transaction.py <-> order_observer.py cycle.
+
+tests/                   mirrors src/, one test file per module, 50 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -118,7 +123,9 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 13: Observer pattern.** Introduce an observer/event mechanism — likely
-on `Order` or `InvestmentAccount` (e.g. notify observers when an order fills,
-or when a balance changes) — so interested parties (a logger, a notification
-stub) can react to domain events without the subject knowing who they are.
+**Step 14: Dependency injection, formalized.** The Order (step 7, strategy),
+InvestorService (step 11, repository), and Order (step 13, observers) all
+already use constructor injection. This step should name and explain the
+pattern explicitly (constructor injection vs. other forms), and/or introduce
+a small composition root that wires concrete implementations together for a
+realistic end-to-end scenario, tying the pieces built so far into one flow.

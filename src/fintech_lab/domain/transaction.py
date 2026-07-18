@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from fintech_lab.domain.exceptions import OrderNotFilledError
 from fintech_lab.domain.financial_product import FinancialProduct
 from fintech_lab.domain.investment_account import InvestmentAccount
-from fintech_lab.domain.order import Order
+
+if TYPE_CHECKING:
+    from fintech_lab.domain.order import Order
 
 
 @dataclass(frozen=True)
