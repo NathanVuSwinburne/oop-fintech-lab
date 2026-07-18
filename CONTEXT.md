@@ -73,8 +73,8 @@ below under "Roadmap" so it survives even if history is lost.
 11. ✅ Service layer
 12. ✅ Factory pattern
 13. ✅ Observer pattern
-14. ⬜ Dependency injection (formalized, beyond the Order preview) **(NEXT)**
-15. ⬜ Unit of Work
+14. ✅ Dependency injection (formalized, beyond the Order preview)
+15. ⬜ Unit of Work **(NEXT)**
 16. ⬜ `User`, `Role`, `Adviser`, permissions
 17. ⬜ Refactor pass — SOLID review, coupling/cohesion
 18. ⬜ Full `pytest` suite pass — fixtures, test doubles
@@ -115,7 +115,12 @@ domain/order_observer.py   OrderObserver (ABC) + TransactionRecorder (concrete: 
                             transaction.py's Order import moved to TYPE_CHECKING to break
                             the order.py <-> transaction.py <-> order_observer.py cycle.
 
-tests/                   mirrors src/, one test file per module, 50 tests passing
+application/composition_root.py   place_market_order(...) — the composition root: only
+                            place allowed to construct concretes (InMemoryInvestorRepository,
+                            MarketOrderExecution, TransactionRecorder); wires them end-to-end
+                            through one trade. Everything downstream depends on interfaces only.
+
+tests/                   mirrors src/, one test file per module, 51 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -123,9 +128,9 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 14: Dependency injection, formalized.** The Order (step 7, strategy),
-InvestorService (step 11, repository), and Order (step 13, observers) all
-already use constructor injection. This step should name and explain the
-pattern explicitly (constructor injection vs. other forms), and/or introduce
-a small composition root that wires concrete implementations together for a
-realistic end-to-end scenario, tying the pieces built so far into one flow.
+**Step 15: Unit of Work.** Introduce a Unit of Work that tracks a batch of
+changes (e.g. new/updated investors, accounts, transactions) and commits them
+together, so a multi-step operation either fully succeeds or fully rolls
+back. In-memory implementation first, consistent with the repository step —
+this sets up the pattern that becomes essential once Phase B adds a real
+database with transactions.
