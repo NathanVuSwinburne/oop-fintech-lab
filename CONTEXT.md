@@ -55,9 +55,9 @@ below under "Roadmap" so it survives even if history is lost.
 - Every step gets a runnable `pytest` test alongside the code, in `tests/`
   mirroring the `src/` layout.
 - No abstractions added ahead of need (YAGNI) — e.g. no `Money` value object
-  yet because nothing handles multiple currencies; no `application/` or
-  `infrastructure/` folders yet because the repository/service-layer steps
-  that need them haven't landed.
+  yet because nothing handles multiple currencies; no `application/` folder
+  yet because the service-layer step that needs it hasn't landed.
+  `infrastructure/` now exists (step 10, `InMemoryInvestorRepository`).
 
 ## Roadmap (Phase A — OOP foundations)
 
@@ -70,8 +70,8 @@ below under "Roadmap" so it survives even if history is lost.
 7. ✅ `Order` + `OrderExecutionStrategy` — Strategy pattern, DI preview
 8. ✅ `Transaction` — immutability, value objects (frozen dataclass)
 9. ✅ Custom exceptions — exception hierarchy
-10. ⬜ Repository pattern (in-memory first) **(NEXT)**
-11. ⬜ Service layer
+10. ✅ Repository pattern (in-memory first)
+11. ⬜ Service layer **(NEXT)**
 12. ⬜ Factory pattern
 13. ⬜ Observer pattern
 14. ⬜ Dependency injection (formalized, beyond the Order preview)
@@ -99,8 +99,12 @@ src/fintech_lab/domain/
   transaction.py           Transaction (frozen dataclass, built via Transaction.from_order)
   exceptions.py            FintechLabError base + ValidationError, InsufficientFundsError,
                             OrderNotFilledError
+  repositories.py          InvestorRepository (ABC) — the port, no I/O
 
-tests/                   mirrors src/, one test file per module, 32 tests passing
+src/fintech_lab/infrastructure/
+  in_memory_investor_repository.py   InMemoryInvestorRepository — the adapter
+
+tests/                   mirrors src/, one test file per module, 36 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -108,9 +112,10 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 10: Repository pattern (in-memory first).** Introduce a repository
-abstraction for persisting/retrieving domain objects (start with
-`InvestorRepository` or similar), backed by an in-memory dict implementation.
-This is the first step that will justify creating new folders beyond
-`domain/` — likely `application/` or a `repositories/` module — since
-`domain/` must stay framework-free per the working agreement.
+**Step 11: Service layer.** Introduce an application-layer service (e.g.
+`InvestorService` or a `TradingService`) that orchestrates domain objects and
+the `InvestorRepository` port to perform a use case (e.g. "open an account
+for a new investor", or "place and execute an order, then record the
+resulting Transaction"). This is what justifies creating `application/` —
+services coordinate domain + repository, but contain no business rules
+themselves (those stay in the domain objects).
