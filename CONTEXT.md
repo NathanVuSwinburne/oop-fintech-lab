@@ -71,8 +71,8 @@ below under "Roadmap" so it survives even if history is lost.
 9. ✅ Custom exceptions — exception hierarchy
 10. ✅ Repository pattern (in-memory first)
 11. ✅ Service layer
-12. ⬜ Factory pattern **(NEXT)**
-13. ⬜ Observer pattern
+12. ✅ Factory pattern
+13. ⬜ Observer pattern **(NEXT)**
 14. ⬜ Dependency injection (formalized, beyond the Order preview)
 15. ⬜ Unit of Work
 16. ⬜ `User`, `Role`, `Adviser`, permissions
@@ -107,7 +107,10 @@ src/fintech_lab/application/
   investor_service.py      InvestorService — register()/find(), DI'd InvestorRepository,
                             owns id-assignment orchestration (not a domain rule)
 
-tests/                   mirrors src/, one test file per module, 40 tests passing
+domain/product_factory.py  FinancialProductFactory — static create(type, id, name, price),
+                            dispatches to Stock/Bond/Fund, ValidationError on unknown type
+
+tests/                   mirrors src/, one test file per module, 44 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -115,8 +118,7 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 12: Factory pattern.** Introduce a factory for constructing
-`FinancialProduct` instances (`Stock`, `Bond`, `Fund`) from simpler input
-(e.g. a type string + params), so calling code doesn't need to know the
-concrete subclasses. Good contrast point with Strategy (step 7): factory
-picks *which class to build*, strategy picks *which behavior to run*.
+**Step 13: Observer pattern.** Introduce an observer/event mechanism — likely
+on `Order` or `InvestmentAccount` (e.g. notify observers when an order fills,
+or when a balance changes) — so interested parties (a logger, a notification
+stub) can react to domain events without the subject knowing who they are.
