@@ -55,9 +55,8 @@ below under "Roadmap" so it survives even if history is lost.
 - Every step gets a runnable `pytest` test alongside the code, in `tests/`
   mirroring the `src/` layout.
 - No abstractions added ahead of need (YAGNI) — e.g. no `Money` value object
-  yet because nothing handles multiple currencies; no `application/` folder
-  yet because the service-layer step that needs it hasn't landed.
-  `infrastructure/` now exists (step 10, `InMemoryInvestorRepository`).
+  yet because nothing handles multiple currencies. `infrastructure/` (step 10)
+  and `application/` (step 11) now exist, holding only what those steps needed.
 
 ## Roadmap (Phase A — OOP foundations)
 
@@ -71,8 +70,8 @@ below under "Roadmap" so it survives even if history is lost.
 8. ✅ `Transaction` — immutability, value objects (frozen dataclass)
 9. ✅ Custom exceptions — exception hierarchy
 10. ✅ Repository pattern (in-memory first)
-11. ⬜ Service layer **(NEXT)**
-12. ⬜ Factory pattern
+11. ✅ Service layer
+12. ⬜ Factory pattern **(NEXT)**
 13. ⬜ Observer pattern
 14. ⬜ Dependency injection (formalized, beyond the Order preview)
 15. ⬜ Unit of Work
@@ -104,7 +103,11 @@ src/fintech_lab/domain/
 src/fintech_lab/infrastructure/
   in_memory_investor_repository.py   InMemoryInvestorRepository — the adapter
 
-tests/                   mirrors src/, one test file per module, 36 tests passing
+src/fintech_lab/application/
+  investor_service.py      InvestorService — register()/find(), DI'd InvestorRepository,
+                            owns id-assignment orchestration (not a domain rule)
+
+tests/                   mirrors src/, one test file per module, 40 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -112,10 +115,8 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 11: Service layer.** Introduce an application-layer service (e.g.
-`InvestorService` or a `TradingService`) that orchestrates domain objects and
-the `InvestorRepository` port to perform a use case (e.g. "open an account
-for a new investor", or "place and execute an order, then record the
-resulting Transaction"). This is what justifies creating `application/` —
-services coordinate domain + repository, but contain no business rules
-themselves (those stay in the domain objects).
+**Step 12: Factory pattern.** Introduce a factory for constructing
+`FinancialProduct` instances (`Stock`, `Bond`, `Fund`) from simpler input
+(e.g. a type string + params), so calling code doesn't need to know the
+concrete subclasses. Good contrast point with Strategy (step 7): factory
+picks *which class to build*, strategy picks *which behavior to run*.
