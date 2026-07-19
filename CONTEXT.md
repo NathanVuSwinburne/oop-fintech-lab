@@ -75,8 +75,8 @@ below under "Roadmap" so it survives even if history is lost.
 13. ✅ Observer pattern
 14. ✅ Dependency injection (formalized, beyond the Order preview)
 15. ✅ Unit of Work
-16. ⬜ `User`, `Role`, `Adviser`, permissions **(NEXT)**
-17. ⬜ Refactor pass — SOLID review, coupling/cohesion
+16. ✅ `User`, `Role`, `Adviser`, permissions
+17. ⬜ Refactor pass — SOLID review, coupling/cohesion **(NEXT)**
 18. ⬜ Full `pytest` suite pass — fixtures, test doubles
 
 **Phase B — Systems/infra** (after Phase A): PostgreSQL schema design →
@@ -126,7 +126,14 @@ domain/unit_of_work.py     UnitOfWork (ABC) — context manager, `.investors` po
 infrastructure/in_memory_unit_of_work.py   InMemoryUnitOfWork — stages writes in a scratch
                             InMemoryInvestorRepository, copies to the real one only on commit()
 
-tests/                   mirrors src/, one test file per module, 55 tests passing
+domain/permission.py        Permission (Enum) — VIEW_PORTFOLIO, PLACE_ORDER, MANAGE_INVESTORS
+domain/role.py               Role — name + frozenset[Permission], allows(permission)
+domain/user.py               User — user_id, username, roles: list[Role], has_permission(...)
+domain/adviser.py            Adviser — HAS-A User (composition, not inheritance),
+                              assign_investor() guarded by Permission.MANAGE_INVESTORS,
+                              raises new PermissionDeniedError (exceptions.py) if not granted
+
+tests/                   mirrors src/, one test file per module, 62 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
 
@@ -134,9 +141,9 @@ Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproj
 
 ## Next step
 
-**Step 16: `User`, `Role`, `Adviser`, permissions.** Introduce the remaining
-domain entities from the original prompt's fintech domain list. `User`
-authenticates and has one or more `Role`s; `Role` grants a set of
-permissions; `Adviser` is likely a `User` (or wraps one) linked to the
-`Investor`s they manage. Good opportunity to revisit inheritance/composition
-choices now that the rest of the domain exists as precedent.
+**Step 17: Refactor pass — SOLID review, coupling/cohesion.** No new domain
+concept. Re-read everything under `domain/`, `application/`, `infrastructure/`
+built across steps 1-16 with a critical eye: SRP violations, unnecessary
+coupling between modules, places where an abstraction was added too early or
+too late, and general cleanup. Tests must stay green throughout — this step
+is refactoring, not behavior change.

@@ -12,3 +12,7 @@ class InsufficientFundsError(FintechLabError):
 
 class OrderNotFilledError(FintechLabError):
     """An operation required a filled Order, but the Order hasn't filled."""
+
+
+class PermissionDeniedError(FintechLabError):
+    """A user attempted an operation their roles don't grant permission for."""
