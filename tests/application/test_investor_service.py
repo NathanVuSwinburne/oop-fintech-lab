@@ -1,4 +1,5 @@
 from fintech_lab.application.investor_service import InvestorService
+from fintech_lab.domain.investor import Investor
 from fintech_lab.infrastructure.in_memory_investor_repository import InMemoryInvestorRepository
 
 
@@ -36,3 +37,13 @@ def test_find_returns_none_for_unknown_id():
     service = make_service()
 
     assert service.find(999) is None
+
+
+def test_register_avoids_id_collision_when_repository_is_not_empty():
+    repository = InMemoryInvestorRepository()
+    repository.add(Investor(investor_id=5, name="Existing Investor"))
+    service = InvestorService(repository=repository)
+
+    investor = service.register("Ada Lovelace")
+
+    assert investor.investor_id == 6

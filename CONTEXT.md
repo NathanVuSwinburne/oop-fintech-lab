@@ -76,8 +76,8 @@ below under "Roadmap" so it survives even if history is lost.
 14. ✅ Dependency injection (formalized, beyond the Order preview)
 15. ✅ Unit of Work
 16. ✅ `User`, `Role`, `Adviser`, permissions
-17. ⬜ Refactor pass — SOLID review, coupling/cohesion **(NEXT)**
-18. ⬜ Full `pytest` suite pass — fixtures, test doubles
+17. ✅ Refactor pass — SOLID review, coupling/cohesion
+18. ⬜ Full `pytest` suite pass — fixtures, test doubles **(NEXT)**
 
 **Phase B — Systems/infra** (after Phase A): PostgreSQL schema design →
 raw-SQL repository → SQLAlchemy → FastAPI → auth → logging/config → Alembic
@@ -133,17 +133,33 @@ domain/adviser.py            Adviser — HAS-A User (composition, not inheritanc
                               assign_investor() guarded by Permission.MANAGE_INVESTORS,
                               raises new PermissionDeniedError (exceptions.py) if not granted
 
-tests/                   mirrors src/, one test file per module, 62 tests passing
+tests/                   mirrors src/, one test file per module, 63 tests passing
 tests/test_decimal_basics.py   language-level Decimal-vs-float demo (not domain-specific)
 ```
+
+## Step 17 findings (refactor pass)
+
+- Layering is clean: `domain/` has zero imports from `application/` or
+  `infrastructure/`; confirmed by grep, not just by memory.
+- Real fix applied: `InvestorService` kept its own `_next_id` counter instead
+  of deriving the next id from the repository. A second service instance (or
+  one constructed against a pre-populated repository) would hand out
+  colliding ids. Replaced the counter with `_next_id()` computed from
+  `max(existing ids) + 1`. Added
+  `test_register_avoids_id_collision_when_repository_is_not_empty`.
+- Considered and rejected: `TransactionRecorder` (order_observer.py) has the
+  same "local counter for ids" shape as `InvestorService` had. Left it alone
+  — there's no `TransactionRepository` yet for it to derive ids from, and
+  extracting a shared id-sequence abstraction for two 3-line, differently-
+  shaped call sites would be premature (YAGNI).
 
 Run tests: `pytest` (rootdir is repo root, `pythonpath = ["src"]` set in `pyproject.toml`).
 
 ## Next step
 
-**Step 17: Refactor pass — SOLID review, coupling/cohesion.** No new domain
-concept. Re-read everything under `domain/`, `application/`, `infrastructure/`
-built across steps 1-16 with a critical eye: SRP violations, unnecessary
-coupling between modules, places where an abstraction was added too early or
-too late, and general cleanup. Tests must stay green throughout — this step
-is refactoring, not behavior change.
+**Step 18: Full `pytest` suite pass — fixtures, test doubles.** Closes out
+Phase A. Introduce shared `pytest` fixtures (e.g. in `conftest.py`) for the
+repeated test setup that's currently duplicated across test files
+(`make_stock`, `make_account`, `make_user_with_role`, etc.), and/or explicit
+test doubles (fakes/stubs) where useful. Then do one full-suite read-through
+to confirm coverage and consistency before Phase B begins.
